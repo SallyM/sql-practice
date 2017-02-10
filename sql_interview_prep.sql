@@ -1,3 +1,7 @@
+/* Exercises taken from
+http://www.programmerinterview.com/index.php/database-sql/practice-interview-question-1/
+*/
+
 CREATE TABLE salesperson (
   id INT NOT NULL,
   name VARCHAR(50),
@@ -72,6 +76,16 @@ LEFT JOIN customer AS c
 ON c.id = o.cust_id
 WHERE c.name = 'Samsonic';
 
+-- shorter solution from the site:
+select Salesperson.Name from Salesperson, Orders where
+Salesperson.ID = Orders.salesperson_id and cust_id = '4';
+
+-- using subqueries, also from the site:
+select Salesperson.Name from Salesperson where
+Salesperson.ID = '{select Orders.salesperson_id from Orders,
+                   Customer where Orders.cust_id = Customer.id
+                   and Customer.name = 'Samsonic'}';
+
 
 --b. The names of all salespeople that do not have any order with Samsonic.
 SELECT DISTINCT(s.name)
@@ -89,6 +103,13 @@ WHERE s.name NOT IN (
     ON c.id = o.cust_id
     WHERE c.name = 'Samsonic'
   );
+
+-- site solution:
+select Salesperson.Name from Salesperson
+where Salesperson.ID NOT IN(
+select Orders.salesperson_id from Orders, Customer
+where Orders.cust_id = Customer.ID
+and Customer.Name = 'Samsonic');
 
 -- c. The names of salespeople that have 2 or more orders.
 SELECT DISTINCT(s.name),
@@ -110,7 +131,114 @@ CREATE TABLE highAchiever (
 );
 
 INSERT INTO highAchiever(name, age)
-  SELECT name,
+  (SELECT name,
          age
   FROM salesperson
-  WHERE salary >= 100000;
+  WHERE salary >= 100000);
+
+
+  /*User
+user_id
+name
+phone_num
+
+UserHistory
+user_id
+date
+action
+*/
+
+CREATE TABLE user (
+  user_id INT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(50),
+  phone_num VARCHAR(11),
+  PRIMARY KEY(user_id)
+);
+
+INSERT INTO user (name, phone_num) VALUES ('Abe', '1234567890');
+INSERT INTO user (name, phone_num) VALUES ('Bob', '9876543210');
+INSERT INTO user (name, phone_num) VALUES ('Chris', '6789012345');
+INSERT INTO user (name, phone_num) VALUES ('Danny', '5678901234');
+INSERT INTO user (name, phone_num) VALUES ('Emily', '6543298710');
+INSERT INTO user (name, phone_num) VALUES ('Fran', '6789012345');
+INSERT INTO user (name, phone_num) VALUES ('George', '9012567834');
+INSERT INTO user (name, phone_num) VALUES ('Harry', '5432698710');
+INSERT INTO user (name, phone_num) VALUES ('Ian', '7890162345');
+INSERT INTO user (name, phone_num) VALUES ('Jane', '8901672345');
+
+CREATE TABLE userHistory (
+  rec_id INT NOT NULL AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  rec_date DATE,
+  action VARCHAR(100),
+  PRIMARY KEY(rec_id)
+);
+
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (3, '2017-01-01', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (5, '2017-01-01', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (1, '2017-01-10', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (7, '2017-01-10', 'off');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (6, '2017-01-15', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (1, '2017-01-15', 'off');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (4, '2017-01-17', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (5, '2017-01-17', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (10, '2017-01-17', 'off');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (2, '2017-01-17', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (2, '2017-01-19', 'off');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (1, '2017-01-19', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (10, '2017-01-20', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (2, '2017-01-20', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (3, '2017-01-20', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (7, '2017-01-20', 'off');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (1, '2017-01-22', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (3, '2017-01-22', 'off');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (6, '2017-01-22', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (2, '2017-01-24', 'off');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (7, '2017-01-24', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (5, '2017-01-25', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (10, '2017-01-25', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (2, '2017-01-28', 'off');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (2, '2017-01-29', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (8, '2017-02-01', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (3, '2017-02-01', 'off');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (6, '2017-02-01', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (2, '2017-02-02', 'off');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (1, '2017-02-02', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (10, '2017-02-02', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (7, '2017-02-02', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (10, '2017-02-05', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (2, '2017-02-05', 'off');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (8, '2017-02-05', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (1, '2017-02-05', 'logged_on');
+
+
+/*1. Write a SQL query that returns the name, phone number and most recent date for any user that has logged in over the last 30 days
+(you can tell a user has logged in if the action field in UserHistory is set to "logged_on").
+
+Every time a user logs in a new row is inserted into the UserHistory table with user_id, current date and action (where action = "logged_on").*/
+
+-- this returns duplicates for some reason
+SELECT DISTINCT(name),
+       phone_num,
+       rec_date
+FROM user, userHistory
+WHERE action = 'logged_on'
+AND rec_date BETWEEN (
+  SELECT DATE_ADD(CURRENT_DATE(), INTERVAL -30 DAY)
+) AND CURRENT_DATE;
+
+
+-- this returns correct info:
+SELECT user.name,
+       user.phone_num,
+       userHistory.rec_date
+FROM userHistory
+LEFT JOIN user
+ON userHistory.user_id = user.user_id
+WHERE userHistory.rec_date BETWEEN (DATE_ADD(CURRENT_DATE(), INTERVAL -30 DAY))
+                           AND CURRENT_DATE
+AND userHistory.action = 'logged_on';
+
+
+/*2. Write a SQL query to determine which user_ids in the User table are not contained in the UserHistory table (assume the UserHistory table has a subset of the user_ids in User table). Do not use the SQL MINUS statement.
+Note: the UserHistory table can have multiple entries for each user_id.*/
