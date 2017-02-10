@@ -165,6 +165,11 @@ INSERT INTO user (name, phone_num) VALUES ('George', '9012567834');
 INSERT INTO user (name, phone_num) VALUES ('Harry', '5432698710');
 INSERT INTO user (name, phone_num) VALUES ('Ian', '7890162345');
 INSERT INTO user (name, phone_num) VALUES ('Jane', '8901672345');
+INSERT INTO user (name, phone_num) VALUES ('Kevin', '2348901675');
+INSERT INTO user (name, phone_num) VALUES ('Lilly', '3489021675');
+INSERT INTO user (name, phone_num) VALUES ('Mary', '4890216375');
+INSERT INTO user (name, phone_num) VALUES ('Nick', '1637489025');
+INSERT INTO user (name, phone_num) VALUES ('Oliver', '3748916025');
 
 CREATE TABLE userHistory (
   rec_id INT NOT NULL AUTO_INCREMENT,
@@ -192,7 +197,7 @@ INSERT INTO userHistory (user_id, rec_date, action) VALUES (3, '2017-01-20', 'lo
 INSERT INTO userHistory (user_id, rec_date, action) VALUES (7, '2017-01-20', 'off');
 INSERT INTO userHistory (user_id, rec_date, action) VALUES (1, '2017-01-22', 'logged_on');
 INSERT INTO userHistory (user_id, rec_date, action) VALUES (3, '2017-01-22', 'off');
-INSERT INTO userHistory (user_id, rec_date, action) VALUES (6, '2017-01-22', 'logged_on');
+INSERT INTO userHistory (user_id, rec_date, action) VALUES (13, '2017-01-22', 'logged_on');
 INSERT INTO userHistory (user_id, rec_date, action) VALUES (2, '2017-01-24', 'off');
 INSERT INTO userHistory (user_id, rec_date, action) VALUES (7, '2017-01-24', 'logged_on');
 INSERT INTO userHistory (user_id, rec_date, action) VALUES (5, '2017-01-25', 'logged_on');
@@ -240,5 +245,13 @@ WHERE userHistory.rec_date BETWEEN (DATE_ADD(CURRENT_DATE(), INTERVAL -30 DAY))
 AND userHistory.action = 'logged_on';
 
 
-/*2. Write a SQL query to determine which user_ids in the User table are not contained in the UserHistory table (assume the UserHistory table has a subset of the user_ids in User table). Do not use the SQL MINUS statement.
+/*2. Write a SQL query to determine which user_ids in the User table are not contained in the UserHistory table
+(assume the UserHistory table has a subset of the user_ids in User table). Do not use the SQL MINUS statement.
 Note: the UserHistory table can have multiple entries for each user_id.*/
+
+SELECT user_id
+FROM user
+WHERE user_id NOT IN (
+  SELECT DISTINCT(user_id)
+  FROM userHistory
+);
