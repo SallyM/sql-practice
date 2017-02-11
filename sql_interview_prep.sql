@@ -222,27 +222,31 @@ INSERT INTO userHistory (user_id, rec_date, action) VALUES (1, '2017-02-05', 'lo
 
 Every time a user logs in a new row is inserted into the UserHistory table with user_id, current date and action (where action = "logged_on").*/
 
--- this returns duplicates for some reason
-SELECT DISTINCT(name),
-       phone_num,
-       rec_date
+
+SELECT name,
+       MAX(rec_date) AS most_recent_date,
+       phone_num
 FROM user, userHistory
-WHERE action = 'logged_on'
-AND rec_date BETWEEN (
-  SELECT DATE_ADD(CURRENT_DATE(), INTERVAL -30 DAY)
-) AND CURRENT_DATE;
+WHERE user.user_id = userHistory.user_id
+AND action = 'logged_on'
+AND rec_date >= DATE_ADD(CURRENT_DATE(), INTERVAL -30 DAY)
+GROUP BY user.user_id;
 
 
--- this returns correct info:
+-- also correct:
 SELECT user.name,
        user.phone_num,
-       userHistory.rec_date
+       MAX(userHistory.rec_date)
 FROM userHistory
 LEFT JOIN user
 ON userHistory.user_id = user.user_id
-WHERE userHistory.rec_date BETWEEN (DATE_ADD(CURRENT_DATE(), INTERVAL -30 DAY))
-                           AND CURRENT_DATE
-AND userHistory.action = 'logged_on';
+WHERE userHistory.action = 'logged_on'
+AND userHistory.rec_date >= (DATE_ADD(CURRENT_DATE(), INTERVAL -30 DAY))
+GROUP BY user.user_id;
+
+-- WHERE userHistory.rec_date BETWEEN (DATE_ADD(CURRENT_DATE(), INTERVAL -30 DAY))
+--                            AND CURRENT_DATE
+-- AND userHistory.action = 'logged_on';
 
 
 /*2. Write a SQL query to determine which user_ids in the User table are not contained in the UserHistory table
@@ -252,6 +256,13 @@ Note: the UserHistory table can have multiple entries for each user_id.*/
 SELECT user_id
 FROM user
 WHERE user_id NOT IN (
-  SELECT DISTINCT(user_id)
+  SELECT DISTINCT user_id
   FROM userHistory
 );
+
+-- same result
+SELECT DISTINCT u.user_id
+FROM user AS u
+LEFT JOIN userHistory AS uh
+ON u.user_id = uh.user_id
+WHERE uh.user_id IS NULL;
