@@ -266,3 +266,29 @@ FROM user AS u
 LEFT JOIN userHistory AS uh
 ON u.user_id = uh.user_id
 WHERE uh.user_id IS NULL;
+
+-- Advanced SQL questions:
+/*Here is the problem: find the largest order amount for each salesperson
+and the associated order number,
+along with the customer to whom that order belongs.
+You can present your answer in any database’s SQL – MySQL, Microsoft SQL Server, Oracle, etc.*/
+
+SELECT orders.salesperson_id,
+       salesperson.name,
+       orders.num as order_num,
+       orders.amount,
+       orders.cust_id,
+       customer.name
+FROM orders
+JOIN salesperson
+ON salesperson.id = orders.salesperson_id
+JOIN customer
+ON customer.id = orders.cust_id
+JOIN (
+      SELECT salesperson_id,
+             MAX(amount) as max_order
+      FROM orders
+      GROUP BY salesperson_id
+) AS MaxOrdersBySalesperson
+USING (salesperson_id)
+WHERE amount = max_order;
