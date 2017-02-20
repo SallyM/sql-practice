@@ -280,3 +280,25 @@ JOIN (
 ) AS MaxOrdersBySalesperson
 USING (salesperson_id)
 WHERE amount = max_order;
+
+/*
+SELECT orders.salesperson_id,
+       salesperson.name,
+       orders.num as order_num,
+       orders.amount,
+       orders.cust_id,
+       customer.name
+FROM orders
+JOIN salesperson
+ON salesperson.id = orders.salesperson_id
+JOIN customer
+ON customer.id = orders.cust_id
+JOIN (
+      SELECT salesperson_id,
+             MAX(amount) as max_order
+      FROM orders
+      GROUP BY salesperson_id
+) AS MaxOrdersBySalesperson
+ON orders.salesperson_id = MaxOrdersBySalesperson.salesperson_id
+WHERE amount = max_order;
+*/
