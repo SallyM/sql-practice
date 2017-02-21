@@ -45,6 +45,7 @@ FROM STUDENTS
 WHERE Marks > 75
 ORDER BY RIGHT(Name, 3) ASC, ID;
 
+
 /*
 A median is defined as a number separating the higher half of a data set from the lower half.
 Query the median of the Northern Latitudes (LAT_N) from STATION and round your answer to  decimal places.
@@ -60,3 +61,14 @@ FROM STATION
 ORDER BY LAT_N
 LIMIT 249, 1
 ;
+
+/*
+*/
+-- code by timcottenio, taken from discussion
+SELECT Start_Date, End_Date
+FROM
+    (SELECT Start_Date FROM Projects WHERE Start_Date NOT IN (SELECT End_Date FROM Projects)) a,
+    (SELECT End_Date FROM Projects WHERE End_Date NOT IN (SELECT Start_Date FROM Projects)) b
+WHERE Start_Date < End_Date
+GROUP BY Start_Date
+ORDER BY DATEDIFF(End_Date, Start_Date), Start_Date
