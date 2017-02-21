@@ -64,7 +64,7 @@ LIMIT 249, 1
 
 /*
 */
--- code by timcottenio, taken from discussion
+-- code by timcottenio, taken from discussion section
 SELECT Start_Date, End_Date
 FROM
     (SELECT Start_Date FROM Projects WHERE Start_Date NOT IN (SELECT End_Date FROM Projects)) a,
