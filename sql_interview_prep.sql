@@ -257,8 +257,7 @@ WHERE uh.user_id IS NULL;
 
 -- Advanced SQL questions:
 /*Here is the problem: find the largest order amount for each salesperson
-and the associated order number,
-along with the customer to whom that order belongs.
+and the associated order number, along with the customer to whom that order belongs.
 You can present your answer in any database’s SQL – MySQL, Microsoft SQL Server, Oracle, etc.*/
 
 SELECT orders.salesperson_id,
