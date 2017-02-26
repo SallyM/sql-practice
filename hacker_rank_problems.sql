@@ -206,3 +206,45 @@ WHERE total_submissions > 0
     OR total_unique_views > 0
 ORDER BY contest_id
 ;
+
+SELECT conts.contest_id as contest_id
+     , conts.hacker_id as hacker_id
+     , conts.name as name
+     , SUM(CASE WHEN by_cont.total_submissions is NULL THEN 0 ELSE by_cont.total_submissions END) as ts
+     , SUM(CASE WHEN by_cont.total_accepted_submissions is NULL THEN 0 ELSE by_cont.total_accepted_submissions END) as tas
+     , SUM(CASE WHEN by_cont.total_views is NULL THEN 0 ELSE by_cont.total_views END) as tv
+     , SUM(CASE WHEN by_cont.total_unique_views is NULL THEN 0 ELSE by_cont.total_unique_views END) as tuv
+FROM Contests conts
+LEFT JOIN
+    (SELECT col.contest_id as contest_id
+         , (CASE WHEN by_college.total_submissions is NULL THEN 0 ELSE by_college.total_submissions END) as total_submissions
+         , (CASE WHEN by_college.total_accepted_submissions is NULL THEN 0 ELSE by_college.total_accepted_submissions END) as total_accepted_submissions
+         , (CASE WHEN by_college.total_views is NULL THEN 0 ELSE by_college.total_views END) as total_views
+         , (CASE WHEN by_college.total_unique_views is NULL THEN 0 ELSE by_college.total_unique_views END) as total_unique_views
+    FROM Colleges col
+    LEFT JOIN
+        (SELECT c.college_id as college_id
+            , (CASE WHEN stats.total_submissions is NULL THEN 0 ELSE stats.total_submissions END) as total_submissions
+            , (CASE WHEN stats.total_accepted_submissions is NULL THEN 0 ELSE stats.total_accepted_submissions END) as total_accepted_submissions
+            , (CASE WHEN stats.total_views is NULL THEN 0 ELSE stats.total_views END) as total_views
+            , (CASE WHEN stats.total_unique_views is NULL THEN 0 ELSE stats.total_unique_views END) as total_unique_views
+            FROM Challenges c
+            LEFT JOIN
+                (SELECT v.challenge_id as challenge_id
+                 , (CASE WHEN s.total_submissions is NULL THEN 0 ELSE s.total_submissions END) as total_submissions
+                 , (CASE WHEN s.total_accepted_submissions is NULL THEN 0 ELSE s.total_accepted_submissions END) as total_accepted_submissions
+                 , v.total_views as total_views
+                 , v.total_unique_views as total_unique_views
+                 FROM View_Stats v
+                 LEFT JOIN Submission_Stats s
+                 USING (challenge_id)
+                    ) stats
+            USING (challenge_id)
+        ) by_college
+    USING (college_id)
+    ) by_cont
+USING (contest_id)
+GROUP BY contest_id, hacker_id, name
+HAVING ts > 0 OR tas > 0 OR tv > 0 OR tuv > 0
+ORDER BY contest_id
+;
