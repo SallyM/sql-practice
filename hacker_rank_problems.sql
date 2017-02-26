@@ -146,3 +146,63 @@ FROM (SELECT COUNT(*) as cnt,
     ORDER BY Occupation) as groupped
 ORDER BY totals
 ;
+
+/*
+Samantha interviews many candidates from different colleges using coding challenges and contests.
+Write a query to print the contest_id, hacker_id, name, and the sums of total_submissions, total_accepted_submissions, total_views, and total_unique_views for each contest sorted by contest_id.
+Exclude the contest from the result if all four sums are 0.
+
+Note: A specific contest can be used to screen candidates at more than one college, but each college only holds screening contest.
+*/
+SELECT Contests.contest_id as contest_id
+     , Contests.hacker_id as hacker_id
+     , Contests.name as name
+     , by_cont.total_submissions as total_submissions
+     , by_cont.total_accepted_submissions as total_accepted_submissions
+     , by_cont.total_views as total_views
+     , by_cont.total_unique_views as total_unique_views
+FROM
+    (SELECT Colleges.contest_id as contest_id
+         , SUM(by_college.total_submissions) as total_submissions
+         , SUM(by_college.total_accepted_submissions) as total_accepted_submissions
+         , SUM(by_college.total_views) as total_views
+         , SUM(by_college.total_unique_views) as total_unique_views
+    FROM
+       (SELECT c.college_id as college_id
+             , SUM(stats.total_submissions) as total_submissions
+             , SUM(stats.total_accepted_submissions) as total_accepted_submissions
+             , SUM(stats.total_views) as total_views
+             , SUM(stats.total_unique_views) as total_unique_views
+        FROM
+            (SELECT s.challenge_id as challenge_id
+                  , s.total_submissions as total_submissions
+                  , s.total_accepted_submissions as total_accepted_submissions
+                  , v.total_views as total_views
+                  , v.total_unique_views as total_unique_views
+             FROM
+                (SELECT challenge_id
+                     , SUM(total_submissions) as total_submissions
+                     , SUM(total_accepted_submissions) as total_accepted_submissions
+                FROM Submission_Stats
+                GROUP BY challenge_id) s
+                JOIN
+                (SELECT challenge_id
+                     , SUM(total_views) as total_views
+                     , SUM(total_unique_views) as total_unique_views
+                FROM View_Stats
+                GROUP BY challenge_id) v
+                USING (challenge_id)) stats
+            JOIN Challenges c
+            USING (challenge_id)
+        GROUP BY college_id) by_college
+        JOIN Colleges
+        USING (college_id)
+    GROUP BY contest_id) as by_cont
+    JOIN Contests
+    USING (contest_id)
+WHERE total_submissions > 0
+    OR total_accepted_submissions > 0
+    OR total_views > 0
+    OR total_unique_views > 0
+ORDER BY contest_id
+;
