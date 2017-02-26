@@ -157,22 +157,22 @@ Note: A specific contest can be used to screen candidates at more than one colle
 SELECT Contests.contest_id as contest_id
      , Contests.hacker_id as hacker_id
      , Contests.name as name
-     , by_cont.total_submissions as total_submissions
-     , by_cont.total_accepted_submissions as total_accepted_submissions
-     , by_cont.total_views as total_views
-     , by_cont.total_unique_views as total_unique_views
+     , IFNULL(by_cont.total_submissions, 0) as total_submissions
+     , IFNULL(by_cont.total_accepted_submissions, 0) as total_accepted_submissions
+     , IFNULL(by_cont.total_views, 0) as total_views
+     , IFNULL(by_cont.total_unique_views, 0) as total_unique_views
 FROM
     (SELECT Colleges.contest_id as contest_id
-         , SUM(by_college.total_submissions) as total_submissions
-         , SUM(by_college.total_accepted_submissions) as total_accepted_submissions
-         , SUM(by_college.total_views) as total_views
-         , SUM(by_college.total_unique_views) as total_unique_views
+         , SUM(IFNULL(by_college.total_submissions, 0)) as total_submissions
+         , SUM(IFNULL(by_college.total_accepted_submissions, 0)) as total_accepted_submissions
+         , SUM(IFNULL(by_college.total_views, 0)) as total_views
+         , SUM(IFNULL(by_college.total_unique_views, 0)) as total_unique_views
     FROM
        (SELECT c.college_id as college_id
-             , SUM(stats.total_submissions) as total_submissions
-             , SUM(stats.total_accepted_submissions) as total_accepted_submissions
-             , SUM(stats.total_views) as total_views
-             , SUM(stats.total_unique_views) as total_unique_views
+             , SUM(IFNULL(stats.total_submissions, 0)) as total_submissions
+             , SUM(IFNULL(stats.total_accepted_submissions, 0)) as total_accepted_submissions
+             , SUM(IFNULL(stats.total_views, 0)) as total_views
+             , SUM(IFNULL(stats.total_unique_views, 0)) as total_unique_views
         FROM
             (SELECT s.challenge_id as challenge_id
                   , s.total_submissions as total_submissions
@@ -181,24 +181,24 @@ FROM
                   , v.total_unique_views as total_unique_views
              FROM
                 (SELECT challenge_id
-                     , SUM(total_submissions) as total_submissions
-                     , SUM(total_accepted_submissions) as total_accepted_submissions
+                     , SUM(IFNULL(total_submissions, 0)) as total_submissions
+                     , SUM(IFNULL(total_accepted_submissions, 0)) as total_accepted_submissions
                 FROM Submission_Stats
                 GROUP BY challenge_id) s
-                JOIN
+                RIGHT JOIN
                 (SELECT challenge_id
                      , SUM(total_views) as total_views
                      , SUM(total_unique_views) as total_unique_views
                 FROM View_Stats
                 GROUP BY challenge_id) v
                 USING (challenge_id)) stats
-            JOIN Challenges c
+            RIGHT JOIN Challenges c
             USING (challenge_id)
         GROUP BY college_id) by_college
-        JOIN Colleges
+        RIGHT JOIN Colleges
         USING (college_id)
     GROUP BY contest_id) as by_cont
-    JOIN Contests
+    RIGHT JOIN Contests
     USING (contest_id)
 WHERE total_submissions > 0
     OR total_accepted_submissions > 0
