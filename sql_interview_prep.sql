@@ -301,3 +301,97 @@ JOIN (
 ON orders.salesperson_id = MaxOrdersBySalesperson.salesperson_id
 WHERE amount = max_order;
 */
+
+/*
+Given timestamps of logins, figure out how many people on Facebook were active all seven days of a week on a mobile phone.
+*/
+-- not very clear if asking
+-- a) how many users (groupped by day) were active on mobile in general each day of week (e.g. 5 users were active on Monday, 10 on Tuesday, etc.) or
+-- b) how many users (groupped by user) separately were active every day (e.g. user 1 was on all 7 days on mobile and user 3 also, so total number users who were active all 7 days = 2)
+-- also unclear if asking for consecutive days or just all weekdays in general
+-- solving with the assumption of b and not caring about consecutive days
+CREATE TABLE logins (
+  user_id INT NOT NULL
+, login_time TIMESTAMP
+, platform VARCHAR(20)
+);
+
+INSERT INTO logins (user_id, login_time, platform) VALUES
+  (1, TIMESTAMP('2016-12-28'), 'mobile')
+, (2, TIMESTAMP('2016-12-28'), 'mobile')
+, (3, TIMESTAMP('2016-12-28'), 'browser')
+, (4, TIMESTAMP('2016-12-28'), 'browser')
+, (1, TIMESTAMP('2016-12-28'), 'browser')
+, (6, TIMESTAMP('2016-12-28'), 'mobile')
+, (1, TIMESTAMP('2016-12-29'), 'mobile')
+, (1, TIMESTAMP('2016-12-29'), 'browser')
+, (2, TIMESTAMP('2016-12-29'), 'browser')
+, (2, TIMESTAMP('2016-12-29'), 'mobile')
+, (4, TIMESTAMP('2016-12-29'), 'browser')
+, (3, TIMESTAMP('2016-12-29'), 'browser')
+, (5, TIMESTAMP('2016-12-29'), 'browser')
+, (2, TIMESTAMP('2016-12-30'), 'browser')
+, (3, TIMESTAMP('2016-12-30'), 'mobile')
+, (5, TIMESTAMP('2016-12-30'), 'mobile')
+, (2, TIMESTAMP('2016-12-30'), 'mobile')
+, (1, TIMESTAMP('2016-12-30'), 'mobile')
+, (2, TIMESTAMP('2016-12-30'), 'browser')
+, (2, TIMESTAMP('2016-12-31'), 'mobile')
+, (4, TIMESTAMP('2016-12-30'), 'mobile')
+, (3, TIMESTAMP('2016-12-30'), 'mobile')
+, (5, TIMESTAMP('2016-12-31'), 'browser')
+, (1, TIMESTAMP('2016-12-31'), 'mobile')
+, (6, TIMESTAMP('2016-12-31'), 'mobile')
+, (7, TIMESTAMP('2017-01-01'), 'browser')
+, (1, TIMESTAMP('2017-01-01'), 'mobile')
+, (2, TIMESTAMP('2017-01-01'), 'mobile')
+, (5, TIMESTAMP('2017-01-01'), 'browser')
+, (3, TIMESTAMP('2017-01-01'), 'browser')
+, (4, TIMESTAMP('2017-01-01'), 'mobile')
+, (1, TIMESTAMP('2017-01-02'), 'browser')
+, (6, TIMESTAMP('2017-01-02'), 'mobile')
+, (2, TIMESTAMP('2017-01-02'), 'mobile')
+, (4, TIMESTAMP('2017-01-02'), 'mobile')
+, (3, TIMESTAMP('2017-01-02'), 'mobile')
+, (1, TIMESTAMP('2017-01-02'), 'mobile')
+, (2, TIMESTAMP('2017-01-03'), 'mobile')
+, (1, TIMESTAMP('2017-01-03'), 'mobile')
+, (4, TIMESTAMP('2017-01-03'), 'browser')
+, (2, TIMESTAMP('2017-01-03'), 'mobile')
+, (5, TIMESTAMP('2017-01-03'), 'mobile')
+, (6, TIMESTAMP('2017-01-03'), 'mobile')
+, (1, TIMESTAMP('2017-01-04'), 'mobile')
+, (1, TIMESTAMP('2017-01-04'), 'browser')
+, (5, TIMESTAMP('2017-01-04'), 'browser')
+, (2, TIMESTAMP('2017-01-04'), 'browser')
+, (3, TIMESTAMP('2017-01-04'), 'mobile')
+, (4, TIMESTAMP('2017-01-05'), 'mobile')
+, (5, TIMESTAMP('2017-01-05'), 'browser')
+, (6, TIMESTAMP('2017-01-05'), 'browser')
+, (1, TIMESTAMP('2017-01-05'), 'browser')
+, (2, TIMESTAMP('2017-01-05'), 'mobile')
+, (3, TIMESTAMP('2017-01-05'), 'browser')
+, (1, TIMESTAMP('2017-01-05'), 'mobile')
+, (2, TIMESTAMP('2017-01-05'), 'mobile')
+, (5, TIMESTAMP('2017-01-05'), 'mobile')
+, (4, TIMESTAMP('2017-01-05'), 'mobile')
+, (1, TIMESTAMP('2017-01-06'), 'mobile')
+, (2, TIMESTAMP('2017-01-06'), 'mobile')
+, (3, TIMESTAMP('2017-01-06'), 'mobile')
+, (4, TIMESTAMP('2017-01-06'), 'mobile')
+, (5, TIMESTAMP('2017-01-06'), 'mobile')
+, (6, TIMESTAMP('2017-01-06'), 'mobile')
+;
+
+SELECT COUNT(user_id) AS num_active_users
+FROM
+  -- table of all days of week each mobile user was active
+  (SELECT COUNT(DISTINCT DAYOFWEEK(login_time)) as active_days
+        , user_id
+  FROM logins
+  WHERE platform = 'mobile'
+  GROUP BY user_id
+  ORDER BY user_id, active_days) weekdays
+GROUP BY active_days
+HAVING active_days =7
+;
